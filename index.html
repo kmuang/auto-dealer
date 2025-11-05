@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KM Auto Dealer</title> 
+<link rel="shortcut icon" href="img/logo.png" type="image/x-icon">
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6 flex flex-col items-center">
+
+<h1 class="text-3xl font-bold text-center text-emerald-700 mb-6">🚗 KM Auto Dealer</h1>
+
+<div id="car-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full max-w-6xl"></div>
+
+<!-- Description Modal with Next/Prev -->
+<div id="desc-modal" class="fixed inset-0 bg-black bg-opacity-80 hidden flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl shadow-xl max-w-6xl w-full max-h-[90vh] flex flex-col md:flex-row overflow-hidden relative">
+    
+    <!-- Previous Button -->
+    <button id="prev-btn" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-60 hover:bg-opacity-90 text-2xl px-4 py-2 rounded-full z-50">&larr;</button>
+    
+    <!-- Next Button -->
+    <button id="next-btn" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-60 hover:bg-opacity-90 text-2xl px-4 py-2 rounded-full z-50">&rarr;</button>
+    
+    <!-- Big Image -->
+    <img id="desc-img" src="" alt="Car Image" class="w-full md:w-1/2 h-96 md:h-auto object-cover">
+    
+    <!-- Info -->
+    <div class="p-6 flex flex-col justify-between md:w-1/2">
+      <div>
+        <h2 id="desc-title" class="text-4xl font-bold mb-4 text-emerald-600"></h2>
+        <p id="desc-text" class="text-gray-700 mb-4 text-lg"></p>
+        <p id="desc-price" class="font-bold text-3xl text-emerald-600 mb-4"></p>
+        <ul id="desc-features" class="text-gray-600 mb-4 space-y-1"></ul>
+      </div>
+      <div class="flex gap-4">
+        <button id="modal-buy" class="bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 text-xl flex-1">Buy Now</button>
+        <button id="close-desc" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-400 text-xl flex-1">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-emerald-800 text-white py-4 mt-6 w-full">
+  <div class="max-w-6xl mx-auto text-center">
+    &copy; 2024 KM Auto Dealer. All rights reserved.
+  </div>
+</footer>
+
+<script>
+const cars = [
+  // Original 6 cars
+  {
+    name: "Tesla Model S",
+    price: 89999,
+    image: "https://images.unsplash.com/photo-1620891549027-942fdc95d3f5?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1400",
+    desc: "Electric sedan with autopilot features and long-range battery.",
+    features: ["Electric Engine", "0-60 mph: 3.1s", "Range: 405 miles", "Color: Red"]
+  },
+  {
+    name: "Ford Mustang",
+    price: 55999,
+    image: "https://images.unsplash.com/photo-1625231334168-35067f8853ed?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=774",
+    desc: "Classic muscle car with 450 HP engine and sporty design.",
+    features: ["V8 Engine", "0-60 mph: 4.2s", "Mileage: 22 MPG", "Color: Blue"]
+  },
+  {
+    name: "BMW X5",
+    price: 61999,
+    image: "https://images.unsplash.com/photo-1635089917414-6da790da8479?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=774",
+    desc: "Luxury SUV with premium interiors and advanced safety features.",
+    features: ["V6 Engine", "All-Wheel Drive", "Mileage: 25 MPG", "Color: Black"]
+  },
+  {
+    name: "Audi R8",
+    price: 142999,
+    image: "https://images.unsplash.com/photo-1541348263662-e068662d82af?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1400",
+    desc: "High-performance supercar with V10 engine and sleek design.",
+    features: ["V10 Engine", "0-60 mph: 3.5s", "Top Speed: 205 mph", "Color: Silver"]
+  },
+  {
+    name: "Honda Civic",
+    price: 23999,
+    image: "https://images.unsplash.com/photo-1636915860623-57b9b74133e6?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1400",
+    desc: "Reliable compact car with great fuel economy and comfortable interior.",
+    features: ["I4 Engine", "Mileage: 32 MPG", "Color: White", "Compact Size"]
+  },
+  {
+    name: "Mercedes G-Wagon",
+    price: 134999,
+    image: "https://images.unsplash.com/photo-1656713525438-9116d712aa4f?ixlib=rb-4.1.0&auto=format&fit=crop&q=80&w=1400",
+    desc: "Luxury SUV with iconic design, off-road capability, and premium comfort.",
+    features: ["V8 Engine", "4x4 Off-Road", "Mileage: 18 MPG", "Color: Black"]
+  },
+
+  // New 6 cars
+  {
+    name: "Lamborghini Aventador",
+    price: 393695,
+    image: "https://images.unsplash.com/photo-1621135802920-133df287f89c?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGFtYm9yZ2hpbmklMjBhdmVudGFkb3J8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=1400",
+    desc: "Italian supercar with V12 engine and aerodynamic design.",
+    features: ["V12 Engine", "0-60 mph: 2.9s", "Top Speed: 217 mph", "Color: Yellow"]
+  },
+  {
+    name: "Porsche 911",
+    price: 114000,
+    image: "https://images.unsplash.com/photo-1634673970798-a15ae56f6c65?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cG9yc2NoZSUyMDkxMXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=1400",
+    desc: "Iconic sports car with precision engineering and handling.",
+    features: ["Flat-6 Engine", "0-60 mph: 3.2s", "Top Speed: 191 mph", "Color: Red"]
+  },
+  {
+    name: "Chevrolet Corvette",
+    price: 65999,
+    image: "https://images.unsplash.com/photo-1672151575952-5906a1f085fe?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y2hldnJvbGV0JTIwY29ydmV0dGV8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=1400",
+    desc: "American classic sports car with a powerful V8 engine.",
+    features: ["V8 Engine", "0-60 mph: 3.7s", "Top Speed: 194 mph", "Color: Blue"]
+  },
+  {
+    name: "Jeep Wrangler",
+    price: 37999,
+    image: "https://images.unsplash.com/photo-1506015391300-4802dc74de2e?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8amVlcCUyMHdyYW5nbGVyfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=1400",
+    desc: "Rugged off-road SUV with legendary 4x4 capability.",
+    features: ["V6 Engine", "4x4 Off-Road", "Mileage: 20 MPG", "Color: Green"]
+  },
+  {
+    name: "Toyota Land Cruiser",
+    price: 84999,
+    image: "https://images.unsplash.com/photo-1610064094665-57e727e29f8b?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHRveW90YSUyMGxhbmQlMjBjcnVpc2VyfGVufDB8fDB8fHww&auto=format&fit=crop&q=60&w=1400",
+    desc: "Reliable and luxurious SUV for adventure and comfort.",
+    features: ["V8 Engine", "4x4 Off-Road", "Mileage: 17 MPG", "Color: Silver"]
+  },
+  {
+    name: "Bugatti Chiron",
+    price: 71900,
+    image: "https://images.unsplash.com/photo-1627454820516-dc767bcb4d3e?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YnVnYXR0aSUyMGNoaXJvbnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&q=60&w=1400",
+    desc: "Italian luxury sedan with sporty performance and style.",
+    features: ["V6 Engine", "0-60 mph: 4.7s", "Top Speed: 178 mph", "Color: Blue"]
+  }
+];
+
+const carGrid = document.getElementById("car-grid");
+const descModal = document.getElementById("desc-modal");
+const descImg = document.getElementById("desc-img");
+const descTitle = document.getElementById("desc-title");
+const descText = document.getElementById("desc-text");
+const descPrice = document.getElementById("desc-price");
+const descFeatures = document.getElementById("desc-features");
+const closeDesc = document.getElementById("close-desc");
+const modalBuy = document.getElementById("modal-buy");
+const prevBtn = document.getElementById("prev-btn");
+const nextBtn = document.getElementById("next-btn");
+
+let currentIndex = 0;
+
+// Close modal
+closeDesc.addEventListener("click", () => descModal.classList.add("hidden"));
+
+// Buy inside modal
+modalBuy.addEventListener("click", () => {
+  const car = cars[currentIndex];
+  alert(`You purchased the ${car.name}, congratulations! 🎉`);
+  descModal.classList.add("hidden");
+});
+
+// Generate car cards
+cars.forEach((car, index) => {
+  const card = document.createElement("div");
+  card.className = "bg-white rounded-xl shadow-md overflow-hidden flex flex-col cursor-pointer hover:shadow-xl transition";
+
+  card.innerHTML = `
+    <img src="${car.image}" alt="${car.name}" class="w-full h-48 object-cover">
+    <div class="p-4 flex flex-col flex-1 justify-between">
+      <h2 class="text-xl font-semibold">${car.name}</h2>
+      <p class="text-emerald-600 font-bold mt-1 text-lg">$${car.price.toLocaleString()}</p>
+      <ul class="text-gray-600 mt-2 space-y-1 text-sm">
+        ${car.features.map(f => `<li>• ${f}</li>`).join('')}
+      </ul>
+      <button class="mt-4 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 buy-btn">Buy Now</button>
+    </div>
+  `;
+  carGrid.appendChild(card);
+
+  // Show modal
+  card.addEventListener("click", (e) => {
+    if(e.target.classList.contains("buy-btn")) return;
+    currentIndex = index;
+    showCar(currentIndex);
+    descModal.classList.remove("hidden");
+  });
+
+  // Buy from card
+  card.querySelector(".buy-btn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    alert(`You purchased the ${car.name}, congratulations! 🎉`);
+  });
+});
+
+// Show car in modal
+function showCar(index) {
+  const car = cars[index];
+  descImg.src = car.image;
+  descTitle.textContent = car.name;
+  descText.textContent = car.desc;
+  descPrice.textContent = `$${car.price.toLocaleString()}`;
+  descFeatures.innerHTML = car.features.map(f => `<li>• ${f}</li>`).join('');
+}
+
+// Next / Previous functionality
+nextBtn.addEventListener("click", () => {
+  currentIndex = (currentIndex + 1) % cars.length;
+  showCar(currentIndex);
+});
+prevBtn.addEventListener("click", () => {
+  currentIndex = (currentIndex - 1 + cars.length) % cars.length;
+  showCar(currentIndex);
+});
+
+// Close modal by clicking overlay
+descModal.addEventListener("click", e => {
+  if(e.target === descModal) descModal.classList.add("hidden");
+});
+</script>
+
+</body>
+</html>
